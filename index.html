@@ -1,0 +1,1761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreelanceHub - Connect. Create. Collaborate.</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .notification-badge { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .typing-indicator { animation: typing 1.5s infinite; }
+        @keyframes typing { 0%, 60%, 100% { opacity: 0.3; } 30% { opacity: 1; } }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-handshake text-2xl text-indigo-600 mr-2"></i>
+                        <span class="text-xl font-bold text-gray-900">FreelanceHub</span>
+                    </div>
+                    <div class="hidden md:ml-6 md:flex md:space-x-8">
+                        <a href="#" onclick="showSection('dashboard')" class="nav-link text-gray-900 hover:text-indigo-600 px-3 py-2 text-sm font-medium">Dashboard</a>
+                        <a href="#" onclick="showSection('jobs')" class="nav-link text-gray-500 hover:text-indigo-600 px-3 py-2 text-sm font-medium">Browse Jobs</a>
+                        <a href="#" onclick="showSection('freelancers')" class="nav-link text-gray-500 hover:text-indigo-600 px-3 py-2 text-sm font-medium">Find Talent</a>
+                        <a href="#" onclick="showSection('messages')" class="nav-link text-gray-500 hover:text-indigo-600 px-3 py-2 text-sm font-medium relative">
+                            Messages
+                            <span id="messageNotification" class="notification-badge absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="showSection('notifications')" class="relative p-2 text-gray-400 hover:text-gray-500">
+                        <i class="fas fa-bell text-lg"></i>
+                        <span class="notification-badge absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">5</span>
+                    </button>
+                    <div class="relative">
+                        <button onclick="toggleProfileMenu()" class="flex items-center space-x-2 text-sm rounded-full focus:outline-none">
+                            <img class="h-8 w-8 rounded-full" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23667eea'/%3E%3Ctext x='50' y='55' text-anchor='middle' fill='white' font-size='30' font-family='Arial'%3EJS%3C/text%3E%3C/svg%3E" alt="Profile">
+                            <span class="text-gray-700 font-medium">John Smith</span>
+                            <i class="fas fa-chevron-down text-gray-400"></i>
+                        </button>
+                        <div id="profileMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                            <a href="#" onclick="showSection('profile')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Your Profile</a>
+                            <a href="#" onclick="showSection('settings')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
+                            <a href="#" onclick="showSection('analytics')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Analytics</a>
+                            <a href="#" onclick="logout()" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sign out</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login/Signup Modal -->
+    <div id="authModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium text-gray-900" id="authTitle">Welcome to FreelanceHub</h3>
+                    <button onclick="closeAuthModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div id="loginForm">
+                    <form onsubmit="handleLogin(event)">
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                            <input type="email" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" required>
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                            <input type="password" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" required>
+                        </div>
+                        <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-200">
+                            Sign In
+                        </button>
+                    </form>
+                    
+                    <div class="mt-4">
+                        <div class="relative">
+                            <div class="absolute inset-0 flex items-center">
+                                <div class="w-full border-t border-gray-300"></div>
+                            </div>
+                            <div class="relative flex justify-center text-sm">
+                                <span class="px-2 bg-white text-gray-500">Or continue with</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 grid grid-cols-2 gap-3">
+                            <button onclick="handleSocialLogin('google')" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <i class="fab fa-google text-red-500"></i>
+                                <span class="ml-2">Google</span>
+                            </button>
+                            <button onclick="handleSocialLogin('github')" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <i class="fab fa-github text-gray-900"></i>
+                                <span class="ml-2">GitHub</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <p class="mt-4 text-center text-sm text-gray-600">
+                        Don't have an account? 
+                        <a href="#" onclick="showSignup()" class="text-indigo-600 hover:text-indigo-500">Sign up</a>
+                    </p>
+                </div>
+                
+                <div id="signupForm" class="hidden">
+                    <form onsubmit="handleSignup(event)">
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">I am a:</label>
+                            <div class="flex space-x-4">
+                                <label class="flex items-center">
+                                    <input type="radio" name="userType" value="freelancer" class="mr-2" checked>
+                                    <span>Freelancer</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="userType" value="client" class="mr-2">
+                                    <span>Client</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Full Name</label>
+                            <input type="text" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                            <input type="email" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" required>
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                            <input type="password" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" required>
+                        </div>
+                        <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-200">
+                            Create Account
+                        </button>
+                    </form>
+                    
+                    <p class="mt-4 text-center text-sm text-gray-600">
+                        Already have an account? 
+                        <a href="#" onclick="showLogin()" class="text-indigo-600 hover:text-indigo-500">Sign in</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="section">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Welcome back, John! 👋</h1>
+                <p class="text-gray-600">Here's what's happening with your freelance work today.</p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-6 card-hover">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-green-100 rounded-lg">
+                            <i class="fas fa-dollar-sign text-green-600"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total Earnings</p>
+                            <p class="text-2xl font-semibold text-gray-900">$12,450</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-6 card-hover">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-blue-100 rounded-lg">
+                            <i class="fas fa-briefcase text-blue-600"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Active Projects</p>
+                            <p class="text-2xl font-semibold text-gray-900">8</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-6 card-hover">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-yellow-100 rounded-lg">
+                            <i class="fas fa-star text-yellow-600"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Rating</p>
+                            <p class="text-2xl font-semibold text-gray-900">4.9</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-6 card-hover">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-purple-100 rounded-lg">
+                            <i class="fas fa-clock text-purple-600"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Hours This Week</p>
+                            <p class="text-2xl font-semibold text-gray-900">32</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white rounded-lg shadow">
+                    <div class="p-6 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Recent Projects</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                <div>
+                                    <h4 class="font-medium text-gray-900">E-commerce Website</h4>
+                                    <p class="text-sm text-gray-600">TechCorp Inc.</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-medium text-green-600">$2,500</p>
+                                    <p class="text-sm text-gray-500">In Progress</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                <div>
+                                    <h4 class="font-medium text-gray-900">Mobile App Design</h4>
+                                    <p class="text-sm text-gray-600">StartupXYZ</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-medium text-blue-600">$1,800</p>
+                                    <p class="text-sm text-gray-500">Review</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow">
+                    <div class="p-6 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Upcoming Deadlines</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                <div class="flex-1">
+                                    <p class="font-medium text-gray-900">Website Mockups</p>
+                                    <p class="text-sm text-gray-600">Due in 2 days</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                <div class="flex-1">
+                                    <p class="font-medium text-gray-900">Logo Design</p>
+                                    <p class="text-sm text-gray-600">Due in 5 days</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                <div class="flex-1">
+                                    <p class="font-medium text-gray-900">App Prototype</p>
+                                    <p class="text-sm text-gray-600">Due in 1 week</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Jobs Section -->
+        <div id="jobs" class="section hidden">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">Browse Jobs</h1>
+                    <p class="text-gray-600">Find your next great project</p>
+                </div>
+                <button onclick="showPostJobModal()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition duration-200">
+                    <i class="fas fa-plus mr-2"></i>Post a Job
+                </button>
+            </div>
+
+            <!-- Search and Filters -->
+            <div class="bg-white rounded-lg shadow p-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <input type="text" placeholder="Search jobs..." class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <select class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500">
+                            <option>All Categories</option>
+                            <option>Web Development</option>
+                            <option>Mobile Development</option>
+                            <option>Design</option>
+                            <option>Writing</option>
+                            <option>Marketing</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500">
+                            <option>Any Budget</option>
+                            <option>$0 - $500</option>
+                            <option>$500 - $1,000</option>
+                            <option>$1,000 - $5,000</option>
+                            <option>$5,000+</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500">
+                            <option>Any Duration</option>
+                            <option>Less than 1 week</option>
+                            <option>1-4 weeks</option>
+                            <option>1-3 months</option>
+                            <option>3+ months</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Listings -->
+            <div class="space-y-6">
+                <div class="bg-white rounded-lg shadow p-6 card-hover">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex-1">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">React Developer for E-commerce Platform</h3>
+                            <p class="text-gray-600 mb-3">We need an experienced React developer to build a modern e-commerce platform with advanced features including payment integration, inventory management, and user authentication.</p>
+                            <div class="flex flex-wrap gap-2 mb-3">
+                                <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">React</span>
+                                <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">Node.js</span>
+                                <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">MongoDB</span>
+                                <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">Stripe</span>
+                            </div>
+                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                <span><i class="fas fa-dollar-sign mr-1"></i>$3,000 - $5,000</span>
+                                <span><i class="fas fa-clock mr-1"></i>2-3 months</span>
+                                <span><i class="fas fa-map-marker-alt mr-1"></i>Remote</span>
+                                <span><i class="fas fa-calendar mr-1"></i>Posted 2 hours ago</span>
+                            </div>
+                        </div>
+                        <div class="ml-6">
+                            <button onclick="showProposalModal('React Developer for E-commerce Platform')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition duration-200">
+                                Submit Proposal
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                        <div class="flex items-center space-x-2">
+                            <img class="h-8 w-8 rounded-full" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23f59e0b'/%3E%3Ctext x='50' y='55' text-anchor='middle' fill='white' font-size='25' font-family='Arial'%3ETC%3C/text%3E%3C/svg%3E" alt="Client">
+                            <div>
+                                <p class="font-medium text-gray-900">TechCorp Inc.</p>
+                                <div class="flex items-center">
+                                    <div class="flex text-yellow-400">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <span class="ml-1 text-sm text-gray-600">4.9 (127 reviews)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            <span class="font-medium">15</span> proposals
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6 card-hover">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex-1">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">UI/UX Designer for Mobile App</h3>
+                            <p class="text-gray-600 mb-3">Looking for a talented UI/UX designer to create beautiful and intuitive designs for our fitness tracking mobile application. Must have experience with mobile design patterns.</p>
+                            <div class="flex flex-wrap gap-2 mb-3">
+                                <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">Figma</span>
+                                <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">Adobe XD</span>
+                                <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">Prototyping</span>
+                                <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">Mobile Design</span>
+                            </div>
+                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                <span><i class="fas fa-dollar-sign mr-1"></i>$1,500 - $2,500</span>
+                                <span><i class="fas fa-clock mr-1"></i>3-4 weeks</span>
+                                <span><i class="fas fa-map-marker-alt mr-1"></i>Remote</span>
+                                <span><i class="fas fa-calendar mr-1"></i>Posted 5 hours ago</span>
+                            </div>
+                        </div>
+                        <div class="ml-6">
+                            <button onclick="showProposalModal('UI/UX Designer for Mobile App')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition duration-200">
+                                Submit Proposal
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                        <div class="flex items-center space-x-2">
+                            <img class="h-8 w-8 rounded-full" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2310b981'/%3E%3Ctext x='50' y='55' text-anchor='middle' fill='white' font-size='25' font-family='Arial'%3EFT%3C/text%3E%3C/svg%3E" alt="Client">
+                            <div>
+                                <p class="font-medium text-gray-900">FitTrack Startup</p>
+                                <div class="flex items-center">
+                                    <div class="flex text-yellow-400">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                    </div>
+                                    <span class="ml-1 text-sm text-gray-600">4.2 (23 reviews)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            <span class="font-medium">8</span> proposals
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Freelancers Section -->
+        <div id="freelancers" class="section hidden">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Find Talented Freelancers</h1>
+                <p class="text-gray-600">Discover skilled professionals for your next project</p>
+            </div>
+
+            <!-- Search and Filters -->
+            <div class="bg-white rounded-lg shadow p-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <input type="text" placeholder="Search freelancers..." class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <select class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500">
+                            <option>All Skills</option>
+                            <option>Web Development</option>
+                            <option>Mobile Development</option>
+                            <option>Design</option>
+                            <option>Writing</option>
+                            <option>Marketing</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500">
+                            <option>Any Rate</option>
+                            <option>$10-25/hr</option>
+                            <option>$25-50/hr</option>
+                            <option>$50-100/hr</option>
+                            <option>$100+/hr</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500">
+                            <option>Any Location</option>
+                            <option>United States</option>
+                            <option>Europe</option>
+                            <option>Asia</option>
+                            <option>Remote Only</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Freelancer Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white rounded-lg shadow p-6 card-hover">
+                    <div class="flex items-center mb-4">
+                        <img class="h-16 w-16 rounded-full" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%236366f1'/%3E%3Ctext x='50' y='55' text-anchor='middle' fill='white' font-size='25' font-family='Arial'%3ESA%3C/text%3E%3C/svg%3E" alt="Freelancer">
+                        <div class="ml-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Sarah Anderson</h3>
+                            <p class="text-gray-600">Full-Stack Developer</p>
+                            <div class="flex items-center mt-1">
+                                <div class="flex text-yellow-400 text-sm">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <span class="ml-1 text-sm text-gray-600">5.0 (89 reviews)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">Experienced full-stack developer specializing in React, Node.js, and cloud architecture. 8+ years building scalable web applications.</p>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">React</span>
+                        <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">Node.js</span>
+                        <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">AWS</span>
+                        <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">MongoDB</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-lg font-semibold text-gray-900">$75/hr</p>
+                            <p class="text-sm text-gray-600">Available now</p>
+                        </div>
+                        <button onclick="showContactModal('Sarah Anderson')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition duration-200">
+                            Contact
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6 card-hover">
+                    <div class="flex items-center mb-4">
+                        <img class="h-16 w-16 rounded-full" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2310b981'/%3E%3Ctext x='50' y='55' text-anchor='middle' fill='white' font-size='25' font-family='Arial'%3EMC%3C/text%3E%3C/svg%3E" alt="Freelancer">
+                        <div class="ml-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Mike Chen</h3>
+                            <p class="text-gray-600">UI/UX Designer</p>
+                            <div class="flex items-center mt-1">
+                                <div class="flex text-yellow-400 text-sm">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                                <span class="ml-1 text-sm text-gray-600">4.8 (156 reviews)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">Creative UI/UX designer with a passion for creating beautiful, user-friendly interfaces. Specialized in mobile and web design.</p>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">Figma</span>
+                        <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">Adobe XD</span>
+                        <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">Sketch</span>
+                        <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">Prototyping</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-lg font-semibold text-gray-900">$60/hr</p>
+                            <p class="text-sm text-gray-600">Available in 2 weeks</p>
+                        </div>
+                        <button onclick="showContactModal('Mike Chen')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition duration-200">
+                            Contact
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6 card-hover">
+                    <div class="flex items-center mb-4">
+                        <img class="h-16 w-16 rounded-full" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23f59e0b'/%3E%3Ctext x='50' y='55' text-anchor='middle' fill='white' font-size='25' font-family='Arial'%3ELR%3C/text%3E%3C/svg%3E" alt="Freelancer">
+                        <div class="ml-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Lisa Rodriguez</h3>
+                            <p class="text-gray-600">Content Writer</p>
+                            <div class="flex items-center mt-1">
+                                <div class="flex text-yellow-400 text-sm">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <span class="ml-1 text-sm text-gray-600">4.9 (203 reviews)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">Professional content writer and copywriter with expertise in tech, marketing, and business content. SEO-optimized writing specialist.</p>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded">Copywriting</span>
+                        <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded">SEO</span>
+                        <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded">Blog Writing</span>
+                        <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded">Marketing</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-lg font-semibold text-gray-900">$45/hr</p>
+                            <p class="text-sm text-gray-600">Available now</p>
+                        </div>
+                        <button onclick="showContactModal('Lisa Rodriguez')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition duration-200">
+                            Contact
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages Section -->
+        <div id="messages" class="section hidden">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Messages</h1>
+                <p class="text-gray-600">Stay connected with your clients and collaborators</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Conversations List -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="p-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Conversations</h3>
+                    </div>
+                    <div class="divide-y divide-gray-200">
+                        <div onclick="selectConversation('techcorp')" class="conversation-item p-4 hover:bg-gray-50 cursor-pointer bg-indigo-50">
+                            <div class="flex items-center space-x-3">
+                                <img class="h-10 w-10 rounded-full" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23f59e0b'/%3E%3Ctext x='50' y='55' text-anchor='middle' fill='white' font-size='25' font-family='Arial'%3ETC%3C/text%3E%3C/svg%3E" alt="TechCorp">
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900">TechCorp Inc.</p>
+                                    <p class="text-sm text-gray-500 truncate">Great work on the homepage! Can we...</p>
+                                </div>
+                                <div class="text-xs text-gray-400">2m</div>
+                            </div>
+                        </div>
+                        
+                        <div onclick="selectConversation('fittrack')" class="conversation-item p-4 hover:bg-gray-50 cursor-pointer">
+                            <div class="flex items-center space-x-3">
+                                <img class="h-10 w-10 rounded-full" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2310b981'/%3E%3Ctext x='50' y='55' text-anchor='middle' fill='white' font-size='25' font-family='Arial'%3EFT%3C/text%3E%3C/svg%3E" alt="FitTrack">
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900">FitTrack Startup</p>
+                                    <p class="text-sm text-gray-500 truncate">The mockups look amazing! When can...</p>
+                                </div>
+                                <div class="text-xs text-gray-400">1h</div>
+                            </div>
+                        </div>
+                        
+                        <div onclick="selectConversation('sarah')" class="conversation-item p-4 hover:bg-gray-50 cursor-pointer">
+                            <div class="flex items-center space-x-3">
+                                <img class="h-10 w-10 rounded-full" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%236366f1'/%3E%3Ctext x='50' y='55' text-anchor='middle' fill='white' font-size='25' font-family='Arial'%3ESA%3C/text%3E%3C/svg%3E" alt="Sarah">
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900">Sarah Anderson</p>
+                                    <p class="text-sm text-gray-500 truncate">Thanks for the collaboration! The...</p>
+                                </div>
+                                <div class="text-xs text-gray-400">3h</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Area -->
+                <div class="lg:col-span-2 bg-white rounded-lg shadow flex flex-col h-96">
+                    <div class="p-4 border-b border-gray-200">
+                        <div class="flex items-center space-x-3">
+                            <img class="h-10 w-10 rounded-full" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23f59e0b'/%3E%3Ctext x='50' y='55' text-anchor='middle' fill='white' font-size='25' font-family='Arial'%3ETC%3C/text%3E%3C/svg%3E" alt="TechCorp">
+                            <div>
+                                <p class="font-medium text-gray-900">TechCorp Inc.</p>
+                                <p class="text-sm text-green-600">Online</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="chatMessages" class="flex-1 p-4 overflow-y-auto space-y-4">
+                        <div class="flex items-start space-x-2">
+                            <img class="h-8 w-8 rounded-full" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23f59e0b'/%3E%3Ctext x='50' y='55' text-anchor='middle' fill='white' font-size='25' font-family='Arial'%3ETC%3C/text%3E%3C/svg%3E" alt="TechCorp">
+                            <div class="bg-gray-100 rounded-lg p-3 max-w-xs">
+                                <p class="text-sm">Hi John! Great work on the homepage design. Can we schedule a call to discuss the next phase?</p>
+                                <p class="text-xs text-gray-500 mt-1">10:30 AM</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start space-x-2 justify-end">
+                            <div class="bg-indigo-600 text-white rounded-lg p-3 max-w-xs">
+                                <p class="text-sm">Absolutely! I'm available tomorrow afternoon. How about 2 PM?</p>
+                                <p class="text-xs text-indigo-200 mt-1">10:32 AM</p>
+                            </div>
+                            <img class="h-8 w-8 rounded-full" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23667eea'/%3E%3Ctext x='50' y='55' text-anchor='middle' fill='white' font-size='30' font-family='Arial'%3EJS%3C/text%3E%3C/svg%3E" alt="You">
+                        </div>
+                        
+                        <div class="flex items-start space-x-2">
+                            <img class="h-8 w-8 rounded-full" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23f59e0b'/%3E%3Ctext x='50' y='55' text-anchor='middle' fill='white' font-size='25' font-family='Arial'%3ETC%3C/text%3E%3C/svg%3E" alt="TechCorp">
+                            <div class="bg-gray-100 rounded-lg p-3 max-w-xs">
+                                <p class="text-sm">Perfect! I'll send you a calendar invite. Also, I've attached the updated requirements document.</p>
+                                <p class="text-xs text-gray-500 mt-1">10:35 AM</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center space-x-2 text-gray-500 text-sm">
+                            <img class="h-6 w-6 rounded-full" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23f59e0b'/%3E%3Ctext x='50' y='55' text-anchor='middle' fill='white' font-size='25' font-family='Arial'%3ETC%3C/text%3E%3C/svg%3E" alt="TechCorp">
+                            <span class="typing-indicator">TechCorp is typing...</span>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 border-t border-gray-200">
+                        <form onsubmit="sendMessage(event)" class="flex space-x-2">
+                            <input type="text" id="messageInput" placeholder="Type your message..." class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500">
+                            <button type="button" class="p-2 text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-paperclip"></i>
+                            </button>
+                            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition duration-200">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div id="profile" class="section hidden">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Your Profile</h1>
+                <p class="text-gray-600">Manage your professional information and portfolio</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Profile Info -->
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
+                        <form onsubmit="updateProfile(event)">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                                    <input type="text" value="John" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                                    <input type="text" value="Smith" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                    <input type="email" value="john.smith@email.com" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Hourly Rate</label>
+                                    <input type="number" value="65" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500">
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Professional Title</label>
+                                <input type="text" value="Full-Stack Developer & UI/UX Designer" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500">
+                            </div>
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+                                <textarea rows="4" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500">Passionate full-stack developer with 6+ years of experience creating beautiful, functional web applications. Specialized in React, Node.js, and modern design principles.</textarea>
+                            </div>
+                            <button type="submit" class="mt-4 bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition duration-200">
+                                Update Profile
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Skills -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Skills</h3>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full flex items-center">
+                                React
+                                <button onclick="removeSkill(this)" class="ml-2 text-blue-600 hover:text-blue-800">×</button>
+                            </span>
+                            <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full flex items-center">
+                                Node.js
+                                <button onclick="removeSkill(this)" class="ml-2 text-blue-600 hover:text-blue-800">×</button>
+                            </span>
+                            <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full flex items-center">
+                                JavaScript
+                                <button onclick="removeSkill(this)" class="ml-2 text-blue-600 hover:text-blue-800">×</button>
+                            </span>
+                            <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full flex items-center">
+                                UI/UX Design
+                                <button onclick="removeSkill(this)" class="ml-2 text-green-600 hover:text-green-800">×</button>
+                            </span>
+                            <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full flex items-center">
+                                Figma
+                                <button onclick="removeSkill(this)" class="ml-2 text-green-600 hover:text-green-800">×</button>
+                            </span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <input type="text" id="newSkill" placeholder="Add a skill..." class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500">
+                            <button onclick="addSkill()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition duration-200">
+                                Add
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Portfolio -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-medium text-gray-900">Portfolio</h3>
+                            <button onclick="showAddPortfolioModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition duration-200">
+                                Add Project
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="border rounded-lg p-4">
+                                <div class="w-full h-32 bg-gradient-to-br from-blue-400 to-purple-500 rounded-lg mb-3 flex items-center justify-center">
+                                    <i class="fas fa-laptop-code text-white text-2xl"></i>
+                                </div>
+                                <h4 class="font-medium text-gray-900">E-commerce Platform</h4>
+                                <p class="text-sm text-gray-600 mt-1">Modern React-based shopping platform with payment integration</p>
+                                <div class="flex justify-between items-center mt-3">
+                                    <span class="text-sm text-gray-500">React, Node.js</span>
+                                    <button class="text-indigo-600 hover:text-indigo-800 text-sm">View</button>
+                                </div>
+                            </div>
+                            <div class="border rounded-lg p-4">
+                                <div class="w-full h-32 bg-gradient-to-br from-green-400 to-blue-500 rounded-lg mb-3 flex items-center justify-center">
+                                    <i class="fas fa-mobile-alt text-white text-2xl"></i>
+                                </div>
+                                <h4 class="font-medium text-gray-900">Fitness App Design</h4>
+                                <p class="text-sm text-gray-600 mt-1">Complete UI/UX design for a fitness tracking mobile application</p>
+                                <div class="flex justify-between items-center mt-3">
+                                    <span class="text-sm text-gray-500">Figma, Prototyping</span>
+                                    <button class="text-indigo-600 hover:text-indigo-800 text-sm">View</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Sidebar -->
+                <div class="space-y-6">
+                    <!-- Profile Picture -->
+                    <div class="bg-white rounded-lg shadow p-6 text-center">
+                        <img class="h-32 w-32 rounded-full mx-auto mb-4" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23667eea'/%3E%3Ctext x='50' y='55' text-anchor='middle' fill='white' font-size='30' font-family='Arial'%3EJS%3C/text%3E%3C/svg%3E" alt="Profile">
+                        <h3 class="text-lg font-medium text-gray-900">John Smith</h3>
+                        <p class="text-gray-600">Full-Stack Developer</p>
+                        <button class="mt-3 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition duration-200">
+                            Change Photo
+                        </button>
+                    </div>
+
+                    <!-- Verification -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Verification</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Email</span>
+                                <span class="text-green-600"><i class="fas fa-check-circle"></i> Verified</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Phone</span>
+                                <button class="text-indigo-600 hover:text-indigo-800 text-sm">Verify</button>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Identity</span>
+                                <button class="text-indigo-600 hover:text-indigo-800 text-sm">Verify</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Profile Stats</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">Profile Views</span>
+                                <span class="font-medium">1,247</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">Projects Completed</span>
+                                <span class="font-medium">89</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">Response Rate</span>
+                                <span class="font-medium">98%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">Member Since</span>
+                                <span class="font-medium">Jan 2022</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <div id="analytics" class="section hidden">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Analytics Dashboard</h1>
+                <p class="text-gray-600">Track your performance and earnings</p>
+            </div>
+
+            <!-- Time Period Selector -->
+            <div class="mb-6">
+                <div class="flex space-x-2">
+                    <button onclick="setTimePeriod('week')" class="time-period-btn bg-indigo-600 text-white px-4 py-2 rounded-lg">This Week</button>
+                    <button onclick="setTimePeriod('month')" class="time-period-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-lg">This Month</button>
+                    <button onclick="setTimePeriod('year')" class="time-period-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-lg">This Year</button>
+                </div>
+            </div>
+
+            <!-- Analytics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Total Revenue</p>
+                            <p class="text-2xl font-semibold text-gray-900">$3,240</p>
+                            <p class="text-sm text-green-600">+12% from last week</p>
+                        </div>
+                        <div class="p-3 bg-green-100 rounded-full">
+                            <i class="fas fa-dollar-sign text-green-600"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Hours Worked</p>
+                            <p class="text-2xl font-semibold text-gray-900">32</p>
+                            <p class="text-sm text-blue-600">+5% from last week</p>
+                        </div>
+                        <div class="p-3 bg-blue-100 rounded-full">
+                            <i class="fas fa-clock text-blue-600"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">New Clients</p>
+                            <p class="text-2xl font-semibold text-gray-900">3</p>
+                            <p class="text-sm text-purple-600">+2 from last week</p>
+                        </div>
+                        <div class="p-3 bg-purple-100 rounded-full">
+                            <i class="fas fa-users text-purple-600"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Proposals Sent</p>
+                            <p class="text-2xl font-semibold text-gray-900">8</p>
+                            <p class="text-sm text-yellow-600">Same as last week</p>
+                        </div>
+                        <div class="p-3 bg-yellow-100 rounded-full">
+                            <i class="fas fa-paper-plane text-yellow-600"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Earnings Overview</h3>
+                    <div class="h-64 flex items-end justify-between space-x-2">
+                        <div class="flex flex-col items-center">
+                            <div class="w-8 bg-indigo-600 rounded-t" style="height: 120px;"></div>
+                            <span class="text-xs text-gray-600 mt-2">Mon</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-8 bg-indigo-600 rounded-t" style="height: 80px;"></div>
+                            <span class="text-xs text-gray-600 mt-2">Tue</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-8 bg-indigo-600 rounded-t" style="height: 160px;"></div>
+                            <span class="text-xs text-gray-600 mt-2">Wed</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-8 bg-indigo-600 rounded-t" style="height: 100px;"></div>
+                            <span class="text-xs text-gray-600 mt-2">Thu</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-8 bg-indigo-600 rounded-t" style="height: 140px;"></div>
+                            <span class="text-xs text-gray-600 mt-2">Fri</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-8 bg-indigo-600 rounded-t" style="height: 60px;"></div>
+                            <span class="text-xs text-gray-600 mt-2">Sat</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-8 bg-indigo-600 rounded-t" style="height: 40px;"></div>
+                            <span class="text-xs text-gray-600 mt-2">Sun</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Project Categories</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-4 h-4 bg-blue-500 rounded"></div>
+                                <span class="text-sm text-gray-600">Web Development</span>
+                            </div>
+                            <span class="text-sm font-medium">45%</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-4 h-4 bg-green-500 rounded"></div>
+                                <span class="text-sm text-gray-600">UI/UX Design</span>
+                            </div>
+                            <span class="text-sm font-medium">30%</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-4 h-4 bg-yellow-500 rounded"></div>
+                                <span class="text-sm text-gray-600">Mobile Development</span>
+                            </div>
+                            <span class="text-sm font-medium">15%</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-4 h-4 bg-purple-500 rounded"></div>
+                                <span class="text-sm text-gray-600">Consulting</span>
+                            </div>
+                            <span class="text-sm font-medium">10%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications Section -->
+        <div id="notifications" class="section hidden">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Notifications</h1>
+                <p class="text-gray-600">Stay updated with your latest activities</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-medium text-gray-900">Recent Notifications</h3>
+                        <button onclick="markAllAsRead()" class="text-indigo-600 hover:text-indigo-800 text-sm">Mark all as read</button>
+                    </div>
+                </div>
+                <div class="divide-y divide-gray-200">
+                    <div class="p-6 bg-blue-50">
+                        <div class="flex items-start space-x-3">
+                            <div class="p-2 bg-blue-100 rounded-full">
+                                <i class="fas fa-briefcase text-blue-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">New project proposal received</p>
+                                <p class="text-sm text-gray-600">TechCorp Inc. sent you a proposal for "E-commerce Platform Development"</p>
+                                <p class="text-xs text-gray-500 mt-1">2 minutes ago</p>
+                            </div>
+                            <button class="text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="p-6">
+                        <div class="flex items-start space-x-3">
+                            <div class="p-2 bg-green-100 rounded-full">
+                                <i class="fas fa-dollar-sign text-green-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">Payment received</p>
+                                <p class="text-sm text-gray-600">$2,500 payment for "Mobile App Design" has been processed</p>
+                                <p class="text-xs text-gray-500 mt-1">1 hour ago</p>
+                            </div>
+                            <button class="text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="p-6">
+                        <div class="flex items-start space-x-3">
+                            <div class="p-2 bg-yellow-100 rounded-full">
+                                <i class="fas fa-star text-yellow-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">New review received</p>
+                                <p class="text-sm text-gray-600">FitTrack Startup left you a 5-star review</p>
+                                <p class="text-xs text-gray-500 mt-1">3 hours ago</p>
+                            </div>
+                            <button class="text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="p-6">
+                        <div class="flex items-start space-x-3">
+                            <div class="p-2 bg-purple-100 rounded-full">
+                                <i class="fas fa-envelope text-purple-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">New message</p>
+                                <p class="text-sm text-gray-600">Sarah Anderson sent you a message about collaboration</p>
+                                <p class="text-xs text-gray-500 mt-1">5 hours ago</p>
+                            </div>
+                            <button class="text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div id="settings" class="section hidden">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Settings</h1>
+                <p class="text-gray-600">Manage your account preferences and security</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Account Settings -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Account Settings</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="flex items-center">
+                                    <input type="checkbox" checked class="mr-3">
+                                    <span class="text-sm text-gray-700">Email notifications for new messages</span>
+                                </label>
+                            </div>
+                            <div>
+                                <label class="flex items-center">
+                                    <input type="checkbox" checked class="mr-3">
+                                    <span class="text-sm text-gray-700">Email notifications for project updates</span>
+                                </label>
+                            </div>
+                            <div>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="mr-3">
+                                    <span class="text-sm text-gray-700">SMS notifications for urgent matters</span>
+                                </label>
+                            </div>
+                            <div>
+                                <label class="flex items-center">
+                                    <input type="checkbox" checked class="mr-3">
+                                    <span class="text-sm text-gray-700">Weekly summary emails</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Privacy Settings -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Privacy Settings</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Profile Visibility</label>
+                                <select class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500">
+                                    <option>Public - Visible to everyone</option>
+                                    <option>Private - Only visible to connections</option>
+                                    <option>Hidden - Not visible in search results</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="flex items-center">
+                                    <input type="checkbox" checked class="mr-3">
+                                    <span class="text-sm text-gray-700">Show online status</span>
+                                </label>
+                            </div>
+                            <div>
+                                <label class="flex items-center">
+                                    <input type="checkbox" checked class="mr-3">
+                                    <span class="text-sm text-gray-700">Allow direct messages from clients</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security Settings -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Security</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <button class="w-full text-left p-3 border rounded-lg hover:bg-gray-50">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <p class="font-medium text-gray-900">Change Password</p>
+                                            <p class="text-sm text-gray-600">Update your account password</p>
+                                        </div>
+                                        <i class="fas fa-chevron-right text-gray-400"></i>
+                                    </div>
+                                </button>
+                            </div>
+                            <div>
+                                <button class="w-full text-left p-3 border rounded-lg hover:bg-gray-50">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <p class="font-medium text-gray-900">Two-Factor Authentication</p>
+                                            <p class="text-sm text-gray-600">Add an extra layer of security</p>
+                                        </div>
+                                        <span class="text-sm text-gray-500">Not enabled</span>
+                                    </div>
+                                </button>
+                            </div>
+                            <div>
+                                <button class="w-full text-left p-3 border rounded-lg hover:bg-gray-50">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <p class="font-medium text-gray-900">Login Sessions</p>
+                                            <p class="text-sm text-gray-600">Manage your active sessions</p>
+                                        </div>
+                                        <i class="fas fa-chevron-right text-gray-400"></i>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Sidebar -->
+                <div class="space-y-6">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
+                        <div class="space-y-3">
+                            <button class="w-full text-left p-3 bg-gray-50 rounded-lg hover:bg-gray-100">
+                                <i class="fas fa-download mr-3 text-gray-600"></i>
+                                <span class="text-sm text-gray-700">Export Data</span>
+                            </button>
+                            <button class="w-full text-left p-3 bg-gray-50 rounded-lg hover:bg-gray-100">
+                                <i class="fas fa-shield-alt mr-3 text-gray-600"></i>
+                                <span class="text-sm text-gray-700">Privacy Policy</span>
+                            </button>
+                            <button class="w-full text-left p-3 bg-gray-50 rounded-lg hover:bg-gray-100">
+                                <i class="fas fa-question-circle mr-3 text-gray-600"></i>
+                                <span class="text-sm text-gray-700">Help Center</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Danger Zone</h3>
+                        <div class="space-y-3">
+                            <button class="w-full text-left p-3 border border-red-200 rounded-lg hover:bg-red-50">
+                                <p class="font-medium text-red-600">Deactivate Account</p>
+                                <p class="text-sm text-red-500">Temporarily disable your account</p>
+                            </button>
+                            <button class="w-full text-left p-3 border border-red-200 rounded-lg hover:bg-red-50">
+                                <p class="font-medium text-red-600">Delete Account</p>
+                                <p class="text-sm text-red-500">Permanently delete your account and data</p>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <!-- Post Job Modal -->
+    <div id="postJobModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">Post a New Job</h3>
+                    <button onclick="closePostJobModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <form onsubmit="submitJob(event)">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
+                            <input type="text" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" placeholder="e.g. React Developer for E-commerce Platform">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                            <select required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500">
+                                <option value="">Select a category</option>
+                                <option>Web Development</option>
+                                <option>Mobile Development</option>
+                                <option>Design</option>
+                                <option>Writing</option>
+                                <option>Marketing</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                            <textarea rows="4" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" placeholder="Describe your project requirements..."></textarea>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Budget Range</label>
+                                <select required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500">
+                                    <option value="">Select budget</option>
+                                    <option>$500 - $1,000</option>
+                                    <option>$1,000 - $2,500</option>
+                                    <option>$2,500 - $5,000</option>
+                                    <option>$5,000+</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Duration</label>
+                                <select required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500">
+                                    <option value="">Select duration</option>
+                                    <option>Less than 1 week</option>
+                                    <option>1-4 weeks</option>
+                                    <option>1-3 months</option>
+                                    <option>3+ months</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Required Skills</label>
+                            <input type="text" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" placeholder="e.g. React, Node.js, MongoDB (comma separated)">
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button type="button" onclick="closePostJobModal()" class="px-4 py-2 text-gray-600 border rounded-lg hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                            Post Job
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Proposal Modal -->
+    <div id="proposalModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">Submit Proposal</h3>
+                    <button onclick="closeProposalModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="mb-4 p-4 bg-gray-50 rounded-lg">
+                    <h4 class="font-medium text-gray-900" id="proposalJobTitle">Job Title</h4>
+                </div>
+                
+                <form onsubmit="submitProposal(event)">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Cover Letter</label>
+                            <textarea rows="4" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" placeholder="Explain why you're the perfect fit for this project..."></textarea>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Your Bid ($)</label>
+                                <input type="number" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" placeholder="2500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Delivery Time</label>
+                                <select required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500">
+                                    <option value="">Select timeframe</option>
+                                    <option>1 week</option>
+                                    <option>2 weeks</option>
+                                    <option>1 month</option>
+                                    <option>2 months</option>
+                                    <option>3+ months</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Milestones (Optional)</label>
+                            <textarea rows="3" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" placeholder="Break down your project into milestones..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button type="button" onclick="closeProposalModal()" class="px-4 py-2 text-gray-600 border rounded-lg hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                            Submit Proposal
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div id="contactModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">Contact Freelancer</h3>
+                    <button onclick="closeContactModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="mb-4 p-4 bg-gray-50 rounded-lg">
+                    <h4 class="font-medium text-gray-900" id="contactFreelancerName">Freelancer Name</h4>
+                </div>
+                
+                <form onsubmit="sendContactMessage(event)">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Subject</label>
+                            <input type="text" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" placeholder="Project inquiry">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                            <textarea rows="4" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500" placeholder="Hi! I'm interested in discussing a project with you..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button type="button" onclick="closeContactModal()" class="px-4 py-2 text-gray-600 border rounded-lg hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                            Send Message
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let currentUser = null;
+        let isAuthenticated = false;
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in (simulate with localStorage)
+            const savedUser = localStorage.getItem('freelanceHubUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                isAuthenticated = true;
+                document.getElementById('authModal').style.display = 'none';
+            } else {
+                // Show auth modal for demo
+                setTimeout(() => {
+                    document.getElementById('authModal').style.display = 'block';
+                }, 1000);
+            }
+        });
+
+        // Navigation functions
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            // Update navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('text-gray-900');
+                link.classList.add('text-gray-500');
+            });
+            
+            // Find and highlight active nav link
+            const activeLink = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
+            if (activeLink) {
+                activeLink.classList.remove('text-gray-500');
+                activeLink.classList.add('text-gray-900');
+            }
+        }
+
+        // Profile menu functions
+        function toggleProfileMenu() {
+            const menu = document.getElementById('profileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Close profile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('profileMenu');
+            const button = event.target.closest('button');
+            
+            if (!button || !button.onclick || !button.onclick.toString().includes('toggleProfileMenu')) {
+                menu.classList.add('hidden');
+            }
+        });
+
+        // Authentication functions
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            // Simulate login
+            currentUser = {
+                name: 'John Smith',
+                email: 'john.smith@email.com',
+                type: 'freelancer'
+            };
+            
+            localStorage.setItem('freelanceHubUser', JSON.stringify(currentUser));
+            isAuthenticated = true;
+            
+            closeAuthModal();
+            showNotification('Welcome back, John!', 'success');
+        }
+
+        function handleSignup(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const userType = formData.get('userType');
+            
+            // Simulate signup
+            currentUser = {
+                name: formData.get('name') || 'New User',
+                email: formData.get('email'),
+                type: userType
+            };
+            
+            localStorage.setItem('freelanceHubUser', JSON.stringify(currentUser));
+            isAuthenticated = true;
+            
+            closeAuthModal();
+            showNotification('Account created successfully!', 'success');
+        }
+
+        function handleSocialLogin(provider) {
+            // Simulate social login
+            currentUser = {
+                name: 'John Smith',
+                email: 'john.smith@email.com',
+                type: 'freelancer',
+                provider: provider
+            };
+            
+            localStorage.setItem('freelanceHubUser', JSON.stringify(currentUser));
+            isAuthenticated = true;
+            
+            closeAuthModal();
+            showNotification(`Signed in with ${provider}!`, 'success');
+        }
+
+        function logout() {
+            localStorage.removeItem('freelanceHubUser');
+            currentUser = null;
+            isAuthenticated = false;
+            
+            // Reset to login form
+            showLogin();
+            document.getElementById('authModal').style.display = 'block';
+            showNotification('Signed out successfully', 'info');
+        }
+
+        function showLogin() {
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('signupForm').classList.add('hidden');
+            document.getElementById('authTitle').textContent = 'Welcome Back';
+        }
+
+        function showSignup() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('signupForm').classList.remove('hidden');
+            document.getElementById('authTitle').textContent = 'Join FreelanceHub';
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').style.display = 'none';
+        }
+
+        // Job posting functions
+        function showPostJobModal() {
+            document.getElementById('postJobModal').classList.remove('hidden');
+        }
+
+        function closePostJobModal() {
+            document.getElementById('postJobModal').classList.add('hidden');
+        }
+
+        function submitJob(event) {
+            event.preventDefault();
+            closePostJobModal();
+            showNotification('Job posted successfully!', 'success');
+        }
+
+        // Proposal functions
+        function showProposalModal(jobTitle) {
+            document.getElementById('proposalJobTitle').textContent = jobTitle;
+            document.getElementById('proposalModal').classList.remove('hidden');
+        }
+
+        function closeProposalModal() {
+            document.getElementById('proposalModal').classList.add('hidden');
+        }
+
+        function submitProposal(event) {
+            event.preventDefault();
+            closeProposalModal();
+            showNotification('Proposal submitted successfully!', 'success');
+        }
+
+        // Contact functions
+        function showContactModal(freelancerName) {
+            document.getElementById('contactFreelancerName').textContent = freelancerName;
+            document.getElementById('contactModal').classList.remove('hidden');
+        }
+
+        function closeContactModal() {
+            document.getElementById('contactModal').classList.add('hidden');
+        }
+
+        function sendContactMessage(event) {
+            event.preventDefault();
+            closeContactModal();
+            showNotification('Message sent successfully!', 'success');
+        }
+
+        // Messaging functions
+        function selectConversation(conversationId) {
+            // Remove active state from all conversations
+            document.querySelectorAll('.conversation-item').forEach(item => {
+                item.classList.remove('bg-indigo-50');
+            });
+            
+            // Add active state to selected conversation
+            event.currentTarget.classList.add('bg-indigo-50');
+            
+            // Update chat header and messages based on conversation
+            // This would typically load conversation data from an API
+        }
+
+        function sendMessage(event) {
+            event.preventDefault();
+            
+            const messageInput = document.getElementById('messageInput');
+            const messageText = messageInput.value.trim();
+            
+            if (!messageText) return;
+            
+            // Add message to chat
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'flex items-start space-x-2 justify-end';
+            messageDiv.innerHTML = `
+                <div class="bg-indigo-600 text-white rounded-lg p-3 max-w-xs">
+                    <p class="text-sm">${messageText}</p>
+                    <p class="text-xs text-indigo-200 mt-1">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                </div>
+                <img class="h-8 w-8 rounded-full" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23667eea'/%3E%3Ctext x='50' y='55' text-anchor='middle' fill='white' font-size='30' font-family='Arial'%3EJS%3C/text%3E%3C/svg%3E" alt="You">
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            messageInput.value = '';
+            
+            // Simulate response after a delay
+            setTimeout(() => {
+                const responseDiv = document.createElement('div');
+                responseDiv.className = 'flex items-start space-x-2';
+                responseDiv.innerHTML = `
+                    <img class="h-8 w-8 rounded-full" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23f59e0b'/%3E%3Ctext x='50' y='55' text-anchor='middle' fill='white' font-size='25' font-family='Arial'%3ETC%3C/text%3E%3C/svg%3E" alt="TechCorp">
+                    <div class="bg-gray-100 rounded-lg p-3 max-w-xs">
+                        <p class="text-sm">Thanks for the update! I'll review this and get back to you shortly.</p>
+                        <p class="text-xs text-gray-500 mt-1">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                    </div>
+                `;
+                chatMessages.appendChild(responseDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 2000);
+        }
+
+        // Profile functions
+        function updateProfile(event) {
+            event.preventDefault();
+            showNotification('Profile updated successfully!', 'success');
+        }
+
+        function addSkill() {
+            const skillInput = document.getElementById('newSkill');
+            const skillText = skillInput.value.trim();
+            
+            if (!skillText) return;
+            
+            const skillsContainer = skillInput.parentElement.previousElementSibling;
+            const skillSpan = document.createElement('span');
+            skillSpan.className = 'px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full flex items-center';
+            skillSpan.innerHTML = `
+                ${skillText}
+                <button onclick="removeSkill(this)" class="ml-2 text-blue-600 hover:text-blue-800">×</button>
+            `;
+            
+            skillsContainer.appendChild(skillSpan);
+            skillInput.value = '';
+        }
+
+        function removeSkill(button) {
+            button.parentElement.remove();
+        }
+
+        function showAddPortfolioModal() {
+            showNotification('Portfolio upload feature coming soon!', 'info');
+        }
+
+        // Analytics functions
+        function setTimePeriod(period) {
+            // Update button states
+            document.querySelectorAll('.time-period-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-gray-700');
+            });
+            
+            event.target.classList.remove('bg-gray-200', 'text-gray-700');
+            event.target.classList.add('bg-indigo-600', 'text-white');
+            
+            // Update analytics data (would typically fetch from API)
+            showNotification(`Analytics updated for ${period}`, 'info');
+        }
+
+        // Notification functions
+        function markAllAsRead() {
+            document.getElementById('messageNotification').style.display = 'none';
+            showNotification('All notifications marked as read', 'success');
+        }
+
+        // Utility functions
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${
+                type === 'success' ? 'bg-green-500 text-white' :
+                type === 'error' ? 'bg-red-500 text-white' :
+                'bg-blue-500 text-white'
+            }`;
+            notification.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <span>${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        // Close modals when clicking outside
+        document.addEventListener('click', function(event) {
+            const modals = ['postJobModal', 'proposalModal', 'contactModal'];
+            
+            modals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (event.target === modal) {
+                    modal.classList.add('hidden');
+                }
+            });
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            // Escape key closes modals
+            if (event.key === 'Escape') {
+                document.querySelectorAll('.fixed').forEach(modal => {
+                    if (!modal.classList.contains('hidden')) {
+                        modal.classList.add('hidden');
+                    }
+                });
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9826266676ba9e80',t:'MTc1ODQyMTkyNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
